@@ -1,4 +1,4 @@
-push 4 + 4
-pop 6 -
-push 9 -
-6 pop -
+def rec x : x + 4
+def hel y : ( y < 0 ) ? ( hel ( rec y ) ) ; ( y )
+read
+print hel -5

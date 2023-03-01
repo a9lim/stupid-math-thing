@@ -13,6 +13,8 @@ public class Inkatink {
     private HashMap<String, String[][]> fun;
     private HashSet<String> special;
 
+    public static final Scanner uin = new Scanner(System.in);
+
     public Inkatink() {
         fun = new HashMap<>();
         vars = new HashMap<>();
@@ -38,6 +40,12 @@ public class Inkatink {
     }
 
     public void compute(String s){
+        if(s.contains("read")) {
+            System.out.print("> ");
+            s = s.replaceFirst("read", uin.nextLine());
+        }
+        while(s.contains("pop"))
+            s = s.replaceFirst("pop", String.valueOf(sts.pop()));
         String[] line = s.split(" ");
         switch (line[0]){
             case "def" -> {
@@ -62,12 +70,11 @@ public class Inkatink {
                     fun.put(line[1], fundef);
                 }
             }
-            case "push" -> sts.push(this.parse(itop(line,1)));
-//            case "print" -> System.out.println(sts.pop());
-            default -> System.out.println(parse(itop(line)));
+            case "print" -> System.out.println(this.parse(itop(line,1)));
+            case "clear" -> sts.clear();
+            default -> sts.push(this.parse(itop(line)));
         }
-        if(!sts.isEmpty())
-            vars.put("pop",sts.peek());
+//        System.out.println(sts);
     }
 
     public Stack<String> itop(String[] s, int i) {
@@ -96,10 +103,13 @@ public class Inkatink {
                 }
             }
         }
-        while (op.size() > 0) {
+        while (!op.isEmpty()) {
             o.push(op.pop());
         }
-        return o;
+        while (!o.isEmpty()){
+            op.push(o.pop());
+        }
+        return op;
     }
     public Stack<String> itop(String[] s) {
         return itop(s,0);
@@ -117,14 +127,25 @@ public class Inkatink {
             case ">", "<", "=" -> 0;
             case "&", "|", "~" -> -1;
             case "(" -> 5;
+            case "?", ";" -> -2;
             default -> 4;
         };
     }
 
     public int parse(Stack<String> s) {
+        String st;
+//        System.out.println(s);
+//        System.out.println(s.peek());
 
-        for (String st : s) {
-            if (BWORDS.contains(st)) {
+        while (!s.isEmpty()) {
+            st = s.pop();
+            if (st.equals("?")){
+                if(sts.pop() == 0)
+                    while(!st.equals(";"))
+                        st = s.pop();
+            } else if (st.equals(";")) {
+                return sts.pop();
+            } else if (BWORDS.contains(st)) {
                 sts.push(eval(st,0));
             } else if (UWORDS.contains(st)) {
                 sts.push(eval(st,1));
@@ -135,7 +156,10 @@ public class Inkatink {
             } else {
                 sts.push(Integer.parseInt(st));
             }
+//            System.out.println(sts);
+//            System.out.println(sts.peek());
         }
+
         return sts.pop();
     }
 

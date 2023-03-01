@@ -9,10 +9,18 @@ public class Main {
 //        System.out.println("Hello world!");
         Inkatink i = new Inkatink();
 
-        String[] lines = new String[];
+//        String[] lines = new String[];
 
+        int ii = 0;
         while (in.hasNextLine()){
-            i.compute(in.nextLine());
+            try {
+                i.compute(in.nextLine());
+                ii++;
+            } catch (Exception ex) {
+                System.err.println("problem at " + ii);
+                ex.printStackTrace();
+//                System.err.println(ex.printStackTrace());
+            }
         }
 
 //        i.parse("( 3 < 4 ) + 1");
