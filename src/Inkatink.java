@@ -10,7 +10,7 @@ public class Inkatink {
 
     private Stack<Integer> sts;
     private HashMap<String, Integer> vars;
-    private HashMap<String, String[][]> fun;
+    private HashMap<String, Stack<String>[]> fun;
     private HashSet<String> special;
 
     public static final Scanner uin = new Scanner(System.in);
@@ -40,6 +40,8 @@ public class Inkatink {
     }
 
     public void compute(String s){
+        if(s.startsWith("#"))
+            return;
         if(s.contains("read")) {
             System.out.print("> ");
             s = s.replaceFirst("read", uin.nextLine());
@@ -47,33 +49,6 @@ public class Inkatink {
         while(s.contains("pop"))
             s = s.replaceFirst("pop", String.valueOf(sts.pop()));
         String[] line = s.split(" ");
-        switch (line[0]){
-            case "def" -> {
-                int index = -1;
-                for(int i = 2; index == -1; i++){
-                    if(line[i].equals(":")){
-                        index = i - 2;
-                    }
-                }
-                if(index == 0){
-                    vars.put(line[1], this.parse(itop(line,3)));
-                } else {
-                    String[][] fundef = new String[2][];
-                    fundef[0] = new String[index];
-                    fundef[1] = new String[line.length - index - 3];
-                    for (int i = 0; i < fundef[0].length; i++) {
-                        fundef[0][i] = line[i + 2];
-                    }
-                    for (int i = 0; i < fundef[1].length; i++) {
-                        fundef[1][i] = line[i + index + 3];
-                    }
-                    fun.put(line[1], fundef);
-                }
-            }
-            case "print" -> System.out.println(this.parse(itop(line,1)));
-            case "clear" -> sts.clear();
-            default -> sts.push(this.parse(itop(line)));
-        }
 //        System.out.println(sts);
     }
 
@@ -153,6 +128,8 @@ public class Inkatink {
                 sts.push(eval(st,2));
             } else if (vars.containsKey(st)) {
                 sts.push(vars.get(st));
+            } else if (special.contains(st)) {
+                spevl(st);
             } else {
                 sts.push(Integer.parseInt(st));
             }
@@ -160,7 +137,18 @@ public class Inkatink {
 //            System.out.println(sts.peek());
         }
 
-        return sts.pop();
+        return sts.peek();
+    }
+
+    private void spevl(String s) {
+        switch (s){
+            case "def" -> {
+
+            }
+            case "print" -> System.out.println(this.parse(itop(line,1)));
+            case "clear" -> sts.clear();
+            default -> sts.push(this.parse(itop(line)));
+        }
     }
 
     public int eval(String s, int i) {
@@ -181,7 +169,7 @@ public class Inkatink {
         for(String key: st[0]){
             vars.put(key,flipper.pop());
         }
-        return this.parse(itop(st[1]));
+        this.parse(st);
     }
 
     public int bineval(int a, int b, String s) {

@@ -1,4 +1,8 @@
-def rec x : x + 4
-def hel y : ( y < 0 ) ? ( hel ( rec y ) ) ; ( y )
-read
-print hel -5
+# general syntax goal:
+# statement ; -> executes statement
+# expression ; -> pushes
+#def rec x : x + 4
+#def hel y : ( y < 0 ) ? ( hel ( rec y ) ) ; ( y )
+#read
+#print hel -5
+print ( 5 > 0 ) ? 7 ; 9
