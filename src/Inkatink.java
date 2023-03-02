@@ -8,9 +8,10 @@ public class Inkatink {
     public static final String WORDS = BWORDS+UWORDS;
 
 
-    private Stack<Object> sts;
+    private ArrayDeque<Object> sts;
     private HashMap<String, Integer> vars;
-    private HashMap<String, Stack<String>[]> fun;
+    private HashMap<String, Integer> parms;
+    private HashMap<String, ArrayDeque<String>[]> fun;
     private HashSet<String> special;
 
     public static final Scanner uin = new Scanner(System.in);
@@ -18,9 +19,11 @@ public class Inkatink {
     public Inkatink() {
         fun = new HashMap<>();
         vars = new HashMap<>();
-        sts = new Stack<>();
+        parms = new HashMap<>();
+        sts = new ArrayDeque<>();
         special = new HashSet<>();
         special.add("print");
+        special.add("printall");
         special.add("def");
         special.add("as");
         special.add("if");
@@ -53,72 +56,109 @@ public class Inkatink {
         return (String)sts.pop();
     }
 
-    public void compute(String s){
-//        Stack<String> st = itop(s.split(" "));
-//        System.out.println(st);
-//        System.out.println(st.peek());
-
-        if(s.startsWith("#"))
-            return;
-        if(s.contains("read")) {
-            System.out.print("> ");
-            s = s.replaceFirst("read", uin.nextLine());
+    public void computeLines(String[] s){
+        String[] line;
+        for (int i = 0; i < s.length; i++){
+            line = s[i].split(" ");
+            try {
+                switch (line[0]) {
+                    case "#" -> {
+                        continue;
+                    }
+//                    case "if" -> {
+//                        parse(itop(line,1));
+//                        if(popInt() != 0){
+//                            while (!s[++i].equals("else")) {
+//                                tempst.add(temp);
+//                            }
+//                        } else {
+//
+//                        }
+//                    }
+                    default -> {
+                        parse(itop(line));
+                    }
+                }
+            } catch (Exception ex) {
+                System.err.println("problem at " + i);
+                ex.printStackTrace();
+//                System.err.println(ex.printStackTrace());
+            }
         }
-        while(s.contains("pop"))
-            s = s.replaceFirst("pop", String.valueOf(popInt()));
-        String[] line = s.split(" ");
-        Stack<String> str = itop(line);
-//        System.out.println(str);
-//        System.out.println(str.peek());
-        parse(str);
-//        System.out.println(parse);
     }
 
-    public Stack<String> itop(String[] s, int i) {
-        Stack<String> o = new Stack<>();
-        Stack<String> op = new Stack<>();
+    public ArrayDeque<String> itop(String[] s) {
+        ArrayDeque<String> o = new ArrayDeque<>();
+        ArrayDeque<String> op = new ArrayDeque<>();
         for (String st : s) {
-            if(i > 0) {
-                i--;
-            } else {
-                if (st.equals(")")) {
-                    while (op.size() > 0 && !op.peek().equals("("))
-                        o.push(op.pop());
-                    if (op.size() > 0 && op.peek().equals("("))
-                        op.pop();
+            if (st.equals(")")) {
+                while (op.size() > 0 && !op.peek().equals("("))
+                    o.add(op.pop());
+                if (op.peek().equals("("))
+                    op.pop();
 
-                } else if (WORDS.contains(st) || fun.containsKey(st)) {
-                    if (op.size() > 0)
-                        if (isLower(st, op.peek())) {
-                            o.push(op.pop());
-                        }
-                    op.push(st);
-                } else if (special.contains(st)) {
-                    while (!op.isEmpty()) {
-                        o.push(op.pop());
+            } else if (WORDS.contains(st) || fun.containsKey(st)) {
+                if (op.size() > 0)
+                    if (isLower(st, op.peek())) {
+                        o.add(op.pop());
                     }
-                    o.push(st);
-                } else {
-                    if (!st.equals("(")) {
-                        o.push(st);
-                    }
+                op.push(st);
+            } else if (special.contains(st)) {
+                while (!op.isEmpty()) {
+                    o.add(op.pop());
+                }
+                o.add(st);
+            } else {
+                if (!st.equals("(")) {
+                    o.add(st);
                 }
             }
         }
         while (!op.isEmpty()) {
-            o.push(op.pop());
+            o.add(op.pop());
         }
-        while (!o.isEmpty()){
-            op.push(o.pop());
-        }
-        return op;
+        return o;
     }
-    public Stack<String> itop(String[] s) {
-        return itop(s,0);
+
+    public ArrayDeque<String> itop(String[] s, int i) {
+        ArrayDeque<String> o = new ArrayDeque<>();
+        ArrayDeque<String> op = new ArrayDeque<>();
+        for (String st : s) {
+            if(i > 0) {
+                i--;
+                continue;
+            }
+            if (st.equals(")")) {
+                while (op.size() > 0 && !op.peek().equals("("))
+                    o.add(op.pop());
+                if (op.size() > 0 && op.peek().equals("("))
+                    op.pop();
+
+            } else if (WORDS.contains(st) || fun.containsKey(st)) {
+                if (op.size() > 0)
+                    if (isLower(st, op.peek())) {
+                        o.add(op.pop());
+                    }
+                op.push(st);
+            } else if (special.contains(st)) {
+                while (!op.isEmpty()) {
+                    o.add(op.pop());
+                }
+                o.add(st);
+            } else {
+                if (!st.equals("(")) {
+                    o.add(st);
+                }
+            }
+        }
+        while (!op.isEmpty()) {
+            o.add(op.pop());
+        }
+        return o;
     }
 
     public boolean isLower(String c1, String c2) {
-        return precedence(c2) > precedence(c1);
+        return precedence(c2) < precedence(c1);
     }
 
     public int precedence(String c) {
@@ -135,25 +175,21 @@ public class Inkatink {
         };
     }
 
-    public int parse(Stack<String> s) {
+    public void parse(ArrayDeque<String> s) {
         String st;
 //        System.out.println(s);
 //        System.out.println(s.peek());
 
         while (!s.isEmpty()) {
             st = s.pop();
-            if (st.equals("?")){
-                if(popInt() == 0)
-                    while(!st.equals(":"))
-                        st = s.pop();
-            } else if (st.equals(";")) {
-                return popInt();
-            } else if (BWORDS.contains(st)) {
-                sts.push(eval(st,0));
+            if (BWORDS.contains(st)) {
+                bineval(popInt(), popInt(), st);
             } else if (UWORDS.contains(st)) {
-                sts.push(eval(st,1));
+                uneval(popInt(), st);
             } else if (fun.containsKey(st)) {
-                sts.push(eval(st,2));
+                funeval(st);
+            } else if (parms.containsKey(st)) {
+                sts.push(parms.get(st));
             } else if (vars.containsKey(st)) {
                 sts.push(vars.get(st));
             } else if (special.contains(st)) {
@@ -165,60 +201,120 @@ public class Inkatink {
                     sts.push(st);
                 }
             }
-//            System.out.println(sts);
-//            System.out.println(sts.peek());
         }
-
-        return (int)sts.peek();
     }
 
-    private void spevl(String s,Stack<String> st) {
+//    public void parse(ArrayDeque<String> s,HashMap<String,Integer> dict) {
+//        String st;
+//        System.out.println(s);
+//        System.out.println(s.peek());
+//        System.out.println(dict);
+//
+//
+//        while (!s.isEmpty()) {
+//            st = s.pop();
+//            if (BWORDS.contains(st)) {
+//                bineval(popInt(), popInt(), st);
+//            } else if (UWORDS.contains(st)) {
+//                uneval(popInt(), st);
+//            } else if (fun.containsKey(st)) {
+//                funeval(st);
+//            } else if (dict.containsKey(st)) {
+//                sts.push(dict.get(st));
+//            } else if (vars.containsKey(st)) {
+//                sts.push(vars.get(st));
+//            } else if (special.contains(st)) {
+//                spevl(st,s);
+//            } else {
+//                try {
+//                    sts.push(Integer.parseInt(st));
+//                } catch (Exception ex){
+//                    sts.push(st);
+//                }
+//            }
+//        }
+//    }
+
+    private void spevl(String s,ArrayDeque<String> st) {
         switch (s){
             case "def" -> {
                 String name = st.pop();
                 String temp;
-                Stack<String>[] vars = new Stack[2];
-                vars[0] = new Stack<>();
-                vars[1] = new Stack<>();
-                System.out.println(st);
+                ArrayDeque<String>[] vars = new ArrayDeque[2];
+                vars[0] = new ArrayDeque<>();
+                vars[1] = new ArrayDeque<>();
                 while(!(temp = st.pop()).equals("as")){
                     vars[0].push(temp);
                 }
                 while(!(temp = st.pop()).equals(";")){
-                    vars[1].push(temp);
+                    vars[1].add(temp);
                 }
                 fun.put(name,vars);
             }
-            case "print" -> System.out.println(parse(st));
+            case "if" -> {
+                String temp;
+                ArrayDeque<String> tempst = new ArrayDeque<>();
+                while(!(temp = st.pop()).equals("then")){
+                    tempst.add(temp);
+                }
+
+                parse(tempst);
+                if(popInt() != 0) {
+                    while (!(temp = st.pop()).equals("else")) {
+                        tempst.add(temp);
+                    }
+//                    System.out.println(tempst +"tp");
+                } else {
+                    while (!st.pop().equals("else"));
+//                    System.out.println(st +"st");
+                    while (!(temp = st.pop()).equals(";")) {
+                        tempst.add(temp);
+                    }
+                }
+                parse(tempst);
+                st.clear();
+            }
+            case "print" -> {
+                parse(st);
+                System.out.println(sts.peek());
+            }
+            case "printall" -> {
+                parse(st);
+                System.out.println(sts);
+            }
             case "clear" -> sts.clear();
 //            default -> ;
         }
     }
 
-    public int eval(String s, int i) {
-        return switch(i) {
-            case 0 -> bineval(popInt(), popInt(), s);
-            case 1 -> uneval(popInt(), s);
-            case 2 -> funeval(s);
-            default -> 0;
-        };
+//    public void eval(String s, int i) {
+//        sts.push( switch(i) {
+//            case 0 -> bineval(popInt(), popInt(), s);
+//            case 1 -> uneval(popInt(), s);
+//            case 2 -> funeval(s);
+//            default -> 0;
+//        });
+//    }
+
+    public void funeval(String s){
+        ArrayDeque<String>[] grum = new ArrayDeque[2];
+        grum[0] = new ArrayDeque<>(fun.get(s)[0]);
+        grum[1] = new ArrayDeque<>(fun.get(s)[1]);
+
+        parms = new HashMap<>();
+
+        while(!grum[0].isEmpty()){
+            parms.put(grum[0].pop(),popInt());
+        }
+//        System.out.println(grum[1]);
+//        System.out.println(parms + " dong");
+        this.parse(grum[1]);
+//        System.out.println(sts);
+//        return (int)sts.peek();
     }
 
-    public int funeval(String s){
-//        Stack<String>[] st = fun.get(s);
-//        Stack<Integer> flipper = new Stack<>();
-//        for(int i = 0; i < st[0].length; i++) {
-//            flipper.push(sts.pop());
-//        }
-//        for(String key: st[0]){
-//            vars.put(key,flipper.pop());
-//        }
-//        this.parse(st);
-        return 0;
-    }
-
-    public int bineval(int a, int b, String s) {
-        return switch (s) {
+    public void bineval(int a, int b, String s) {
+        sts.push( switch (s) {
             case "+" -> b + a;
             case "-" -> b - a;
             case "*" -> b * a;
@@ -231,14 +327,14 @@ public class Inkatink {
             case "&" -> b & a;
             case "|" -> b | a;
             default -> 0;
-        };
+        });
     }
-    public int uneval(int a,  String s) {
-        return switch (s) {
+    public void uneval(int a,  String s) {
+        sts.push( switch (s) {
             case "!" -> fact(a);
             case "~" -> ~a;
             default -> 0;
-        };
+        });
     }
 
     public int exp(int a, int b){

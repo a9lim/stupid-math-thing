@@ -1,3 +1,6 @@
-0
-def fun ( x y z ) as ( 3 + x - y + 2 ) ;
-print pop
+def fib x as if x < 2 then 1 else ( fib ( x - 1 ) + x ) ;
+print fib 6
+#print if 1 then 6 else 8
+#print if 3 < 8 then 400 else 9
+#printall
+#print 4 - 7 - 8

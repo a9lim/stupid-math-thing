@@ -11,7 +11,7 @@ public class Main {
 
 //        String[] lines = new String[];
 
-        int ii = 0;
+//        int ii = 0;
         while (in.hasNextLine()){
             try {
                 i.compute(in.nextLine());
