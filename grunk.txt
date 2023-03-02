@@ -1,8 +1,3 @@
-# general syntax goal:
-# statement ; -> executes statement
-# expression ; -> pushes
-#def rec x : x + 4
-#def hel y : ( y < 0 ) ? ( hel ( rec y ) ) ; ( y )
-#read
-#print hel -5
-print ( 5 > 0 ) ? 7 ; 9
+0
+def fun ( x y z ) as ( 3 + x - y + 2 ) ;
+print pop

@@ -8,7 +8,7 @@ public class Inkatink {
     public static final String WORDS = BWORDS+UWORDS;
 
 
-    private Stack<Integer> sts;
+    private Stack<Object> sts;
     private HashMap<String, Integer> vars;
     private HashMap<String, Stack<String>[]> fun;
     private HashSet<String> special;
@@ -20,6 +20,13 @@ public class Inkatink {
         vars = new HashMap<>();
         sts = new Stack<>();
         special = new HashSet<>();
+        special.add("print");
+        special.add("def");
+        special.add("as");
+        special.add("if");
+        special.add("then");
+        special.add("else");
+
 //        String[][] sss = {{"A","B","C"},{"A","+","B","-","C"}};
 //        fun.put("o",sss);
 //
@@ -39,7 +46,18 @@ public class Inkatink {
 //        ops.put("|",11);
     }
 
+    public int popInt(){
+        return (int)sts.pop();
+    }
+    public String popStr(){
+        return (String)sts.pop();
+    }
+
     public void compute(String s){
+//        Stack<String> st = itop(s.split(" "));
+//        System.out.println(st);
+//        System.out.println(st.peek());
+
         if(s.startsWith("#"))
             return;
         if(s.contains("read")) {
@@ -47,9 +65,13 @@ public class Inkatink {
             s = s.replaceFirst("read", uin.nextLine());
         }
         while(s.contains("pop"))
-            s = s.replaceFirst("pop", String.valueOf(sts.pop()));
+            s = s.replaceFirst("pop", String.valueOf(popInt()));
         String[] line = s.split(" ");
-//        System.out.println(sts);
+        Stack<String> str = itop(line);
+//        System.out.println(str);
+//        System.out.println(str.peek());
+        parse(str);
+//        System.out.println(parse);
     }
 
     public Stack<String> itop(String[] s, int i) {
@@ -71,6 +93,11 @@ public class Inkatink {
                             o.push(op.pop());
                         }
                     op.push(st);
+                } else if (special.contains(st)) {
+                    while (!op.isEmpty()) {
+                        o.push(op.pop());
+                    }
+                    o.push(st);
                 } else {
                     if (!st.equals("(")) {
                         o.push(st);
@@ -90,11 +117,11 @@ public class Inkatink {
         return itop(s,0);
     }
 
-    public static boolean isLower(String c1, String c2) {
+    public boolean isLower(String c1, String c2) {
         return precedence(c2) > precedence(c1);
     }
 
-    public static int precedence(String c) {
+    public int precedence(String c) {
         return switch (c) {
             case "+", "-" -> 1;
             case "*", "/", "%" -> 2;
@@ -102,7 +129,8 @@ public class Inkatink {
             case ">", "<", "=" -> 0;
             case "&", "|", "~" -> -1;
             case "(" -> 5;
-            case "?", ";" -> -2;
+            case "?", ":" -> -2;
+            case ";" -> -4;
             default -> 4;
         };
     }
@@ -115,11 +143,11 @@ public class Inkatink {
         while (!s.isEmpty()) {
             st = s.pop();
             if (st.equals("?")){
-                if(sts.pop() == 0)
-                    while(!st.equals(";"))
+                if(popInt() == 0)
+                    while(!st.equals(":"))
                         st = s.pop();
             } else if (st.equals(";")) {
-                return sts.pop();
+                return popInt();
             } else if (BWORDS.contains(st)) {
                 sts.push(eval(st,0));
             } else if (UWORDS.contains(st)) {
@@ -129,47 +157,64 @@ public class Inkatink {
             } else if (vars.containsKey(st)) {
                 sts.push(vars.get(st));
             } else if (special.contains(st)) {
-                spevl(st);
+                spevl(st,s);
             } else {
-                sts.push(Integer.parseInt(st));
+                try {
+                    sts.push(Integer.parseInt(st));
+                } catch (Exception ex){
+                    sts.push(st);
+                }
             }
 //            System.out.println(sts);
 //            System.out.println(sts.peek());
         }
 
-        return sts.peek();
+        return (int)sts.peek();
     }
 
-    private void spevl(String s) {
+    private void spevl(String s,Stack<String> st) {
         switch (s){
             case "def" -> {
-
+                String name = st.pop();
+                String temp;
+                Stack<String>[] vars = new Stack[2];
+                vars[0] = new Stack<>();
+                vars[1] = new Stack<>();
+                System.out.println(st);
+                while(!(temp = st.pop()).equals("as")){
+                    vars[0].push(temp);
+                }
+                while(!(temp = st.pop()).equals(";")){
+                    vars[1].push(temp);
+                }
+                fun.put(name,vars);
             }
-            case "print" -> System.out.println(this.parse(itop(line,1)));
+            case "print" -> System.out.println(parse(st));
             case "clear" -> sts.clear();
-            default -> sts.push(this.parse(itop(line)));
+//            default -> ;
         }
     }
 
     public int eval(String s, int i) {
         return switch(i) {
-            case 0 -> bineval(sts.pop(), sts.pop(), s);
-            case 1 -> uneval(sts.pop(), s);
+            case 0 -> bineval(popInt(), popInt(), s);
+            case 1 -> uneval(popInt(), s);
             case 2 -> funeval(s);
             default -> 0;
         };
     }
 
     public int funeval(String s){
-        String[][] st = fun.get(s);
-        Stack<Integer> flipper = new Stack<>();
-        for(int i = 0; i < st[0].length; i++) {
-            flipper.push(sts.pop());
-        }
-        for(String key: st[0]){
-            vars.put(key,flipper.pop());
-        }
-        this.parse(st);
+//        Stack<String>[] st = fun.get(s);
+//        Stack<Integer> flipper = new Stack<>();
+//        for(int i = 0; i < st[0].length; i++) {
+//            flipper.push(sts.pop());
+//        }
+//        for(String key: st[0]){
+//            vars.put(key,flipper.pop());
+//        }
+//        this.parse(st);
+        return 0;
     }
 
     public int bineval(int a, int b, String s) {
