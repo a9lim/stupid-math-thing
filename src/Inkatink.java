@@ -179,6 +179,7 @@ public class Inkatink {
             flipper.push(sts.pop());
         }
         for(String key: st[0]){
+            sts.push(flipper.peek());
             vars.put(key,flipper.pop());
         }
         return this.parse(itop(st[1]));

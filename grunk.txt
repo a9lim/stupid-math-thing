@@ -1,4 +1,2 @@
-def rec x : x + 4
-def hel y : ( y < 0 ) ? ( hel ( rec y ) ) ; ( y )
-read
+def hel y : ( y < 0 ) ? ( hel y + 4 ) ; ( y )
 print hel -5
