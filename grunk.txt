@@ -1,6 +1,8 @@
-def fib x as if x < 2 then 1 else ( fib ( x - 1 ) + x ) ;
-print fib 6
-#print if 1 then 6 else 8
-#print if 3 < 8 then 400 else 9
-#printall
-#print 4 - 7 - 8
+# factorial function: loop example
+print 0
+var x 8
+var y 1
+var y y * x
+var x x - 1
+goto if x > 1 then 5 else 8 ;
+print y

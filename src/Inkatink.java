@@ -1,13 +1,14 @@
 import java.util.*;
 
 public class Inkatink {
-    public static final String BWORDS = "+-*/%^<>=&|";
+    public static final String BWORDS = "+-*/%^<>==&|";
 
     public static final String UWORDS = "~-!";
 
     public static final String WORDS = BWORDS+UWORDS;
 
-
+    private String[] lines;
+    private int index;
     private ArrayDeque<Object> sts;
     private HashMap<String, Integer> vars;
     private HashMap<String, Integer> parms;
@@ -16,12 +17,14 @@ public class Inkatink {
 
     public static final Scanner uin = new Scanner(System.in);
 
-    public Inkatink() {
+    public Inkatink(String[] l) {
         fun = new HashMap<>();
         vars = new HashMap<>();
         parms = new HashMap<>();
         sts = new ArrayDeque<>();
         special = new HashSet<>();
+        index = 0;
+        lines = l;
         special.add("print");
         special.add("printall");
         special.add("def");
@@ -29,6 +32,12 @@ public class Inkatink {
         special.add("if");
         special.add("then");
         special.add("else");
+        special.add(";");
+        special.add("=");
+        special.add("goto");
+        special.add("var");
+        special.add("read");
+
 
 //        String[][] sss = {{"A","B","C"},{"A","+","B","-","C"}};
 //        fun.put("o",sss);
@@ -56,34 +65,19 @@ public class Inkatink {
         return (String)sts.pop();
     }
 
-    public void computeLines(String[] s){
+    public void computeLines(){
         String[] line;
-        for (int i = 0; i < s.length; i++){
-            line = s[i].split(" ");
-            try {
-                switch (line[0]) {
-                    case "#" -> {
-                        continue;
-                    }
-//                    case "if" -> {
-//                        parse(itop(line,1));
-//                        if(popInt() != 0){
-//                            while (!s[++i].equals("else")) {
-//                                tempst.add(temp);
-//                            }
-//                        } else {
-//
-//                        }
-//                    }
-                    default -> {
-                        parse(itop(line));
-                    }
+        while (index < lines.length){
+            if(!lines[index].startsWith("#")) {
+                line = lines[index].split(" ");
+                try {
+                    parse(itop(line));
+                } catch (Exception ex) {
+                    System.err.println("problem at " + index);
+                    ex.printStackTrace();
                 }
-            } catch (Exception ex) {
-                System.err.println("problem at " + i);
-                ex.printStackTrace();
-//                System.err.println(ex.printStackTrace());
             }
+            index++;
         }
     }
 
@@ -94,7 +88,7 @@ public class Inkatink {
             if (st.equals(")")) {
                 while (op.size() > 0 && !op.peek().equals("("))
                     o.add(op.pop());
-                if (op.peek().equals("("))
+                if (op.size() > 0 && op.peek().equals("("))
                     op.pop();
 
             } else if (WORDS.contains(st) || fun.containsKey(st)) {
@@ -108,10 +102,10 @@ public class Inkatink {
                     o.add(op.pop());
                 }
                 o.add(st);
+            } else if (st.equals("(")) {
+                    op.push(st);
             } else {
-                if (!st.equals("(")) {
-                    o.add(st);
-                }
+                o.add(st);
             }
         }
         while (!op.isEmpty()) {
@@ -163,14 +157,14 @@ public class Inkatink {
 
     public int precedence(String c) {
         return switch (c) {
+            case "=" -> -3;
             case "+", "-" -> 1;
             case "*", "/", "%" -> 2;
             case "^" -> 3;
-            case ">", "<", "=" -> 0;
+            case ">", "<", "==" -> 0;
             case "&", "|", "~" -> -1;
             case "(" -> 5;
             case "?", ":" -> -2;
-            case ";" -> -4;
             default -> 4;
         };
     }
@@ -179,7 +173,6 @@ public class Inkatink {
         String st;
 //        System.out.println(s);
 //        System.out.println(s.peek());
-
         while (!s.isEmpty()) {
             st = s.pop();
             if (BWORDS.contains(st)) {
@@ -251,6 +244,19 @@ public class Inkatink {
                 }
                 fun.put(name,vars);
             }
+            case "var" -> {
+                String name = st.pop();
+                parse(st);
+                vars.put(name,popInt());
+            }
+            case "read" -> {
+                System.out.print("> ");
+                parse(itop(uin.nextLine().split(" ")));
+            }
+//            case "=" -> {
+//                String name = st.pop();
+//
+//            }
             case "if" -> {
                 String temp;
                 ArrayDeque<String> tempst = new ArrayDeque<>();
@@ -273,6 +279,10 @@ public class Inkatink {
                 }
                 parse(tempst);
                 st.clear();
+            }
+            case "goto" -> {
+                parse(st);
+                index = popInt()-2;
             }
             case "print" -> {
                 parse(st);
@@ -302,12 +312,14 @@ public class Inkatink {
         grum[1] = new ArrayDeque<>(fun.get(s)[1]);
 
         parms = new HashMap<>();
+        System.out.println(fun.get(s)[0] + " grum0");
 
-        while(!grum[0].isEmpty()){
-            parms.put(grum[0].pop(),popInt());
+        for(int i = 0; i < grum[0].size(); i++){
+            parms.put(grum[0].peek(),popInt());
+            grum[0].add(grum[0].pop());
         }
-//        System.out.println(grum[1]);
-//        System.out.println(parms + " dong");
+        System.out.println(grum[1]);
+        System.out.println(parms + " dong");
         this.parse(grum[1]);
 //        System.out.println(sts);
 //        return (int)sts.peek();

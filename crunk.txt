@@ -1,0 +1,6 @@
+# conditional example
+var x read
+goto if x > 0 then 4 else 6 ;
+print 200
+goto 7
+print 500
