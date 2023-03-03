@@ -29,14 +29,18 @@ public class Inkatink {
         special.add("printall");
         special.add("def");
         special.add("as");
+        special.add("fed");
         special.add("if");
         special.add("then");
         special.add("else");
+        special.add("fi");
         special.add(";");
         special.add("=");
         special.add("goto");
         special.add("var");
         special.add("read");
+        special.add("end");
+
 
 
 //        String[][] sss = {{"A","B","C"},{"A","+","B","-","C"}};
@@ -171,8 +175,6 @@ public class Inkatink {
 
     public void parse(ArrayDeque<String> s) {
         String st;
-//        System.out.println(s);
-//        System.out.println(s.peek());
         while (!s.isEmpty()) {
             st = s.pop();
             if (BWORDS.contains(st)) {
@@ -239,7 +241,7 @@ public class Inkatink {
                 while(!(temp = st.pop()).equals("as")){
                     vars[0].push(temp);
                 }
-                while(!(temp = st.pop()).equals(";")){
+                while(!(temp = st.pop()).equals("fed")){
                     vars[1].add(temp);
                 }
                 fun.put(name,vars);
@@ -269,16 +271,14 @@ public class Inkatink {
                     while (!(temp = st.pop()).equals("else")) {
                         tempst.add(temp);
                     }
-//                    System.out.println(tempst +"tp");
+                    while (st.pop().equals("fi"));
                 } else {
                     while (!st.pop().equals("else"));
-//                    System.out.println(st +"st");
-                    while (!(temp = st.pop()).equals(";")) {
+                    while (!(temp = st.pop()).equals("fi")) {
                         tempst.add(temp);
                     }
                 }
                 parse(tempst);
-                st.clear();
             }
             case "goto" -> {
                 parse(st);
@@ -286,13 +286,14 @@ public class Inkatink {
             }
             case "print" -> {
                 parse(st);
-                System.out.println(sts.peek());
+                System.out.println(sts.pop());
             }
             case "printall" -> {
                 parse(st);
                 System.out.println(sts);
             }
             case "clear" -> sts.clear();
+            case "end" -> index = lines.length;
 //            default -> ;
         }
     }
@@ -312,17 +313,10 @@ public class Inkatink {
         grum[1] = new ArrayDeque<>(fun.get(s)[1]);
 
         parms = new HashMap<>();
-        System.out.println(fun.get(s)[0] + " grum0");
-
-        for(int i = 0; i < grum[0].size(); i++){
-            parms.put(grum[0].peek(),popInt());
-            grum[0].add(grum[0].pop());
+        while(!grum[0].isEmpty()){
+            parms.put(grum[0].pop(),popInt());
         }
-        System.out.println(grum[1]);
-        System.out.println(parms + " dong");
-        this.parse(grum[1]);
-//        System.out.println(sts);
-//        return (int)sts.peek();
+        parse(grum[1]);
     }
 
     public void bineval(int a, int b, String s) {

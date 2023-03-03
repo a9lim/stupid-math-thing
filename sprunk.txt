@@ -1,0 +1,6 @@
+var r read
+var x 4
+var y 3
+if r > 0 then var x 5 else var y 8 fi
+print x + y
+goto if r > -5 then 1 else end fi
