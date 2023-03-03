@@ -1,8 +1,12 @@
 # factorial function: loop example
-print 0
-var x 8
-var y 1
-var y y * x
-var x x - 1
-goto if x > 1 then 5 else 8 fi
+dsr factorial x
+var sum 1
+upon sum * x
+upon x - 1
+goto if x > 1 then 2 else 5 fi
+sum
+rsd
+var y 5
+print y
+upon y factorial
 print y

@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.*;
 public class Main {
     public static void main(String[] args) throws Exception {
-        Scanner in = new Scanner(new FileReader("grunk.txt"));
+        Scanner in = new Scanner(new FileReader("sprunk.txt"));
 //        new File("out.txt").createNewFile();
 //        PrintWriter out = new PrintWriter(new FileWriter("out.txt"));
 //
@@ -15,9 +15,9 @@ public class Main {
         while (in.hasNextLine()){
             lines.add(in.nextLine());
         }
-        Inkatink i = new Inkatink(lines.toArray(new String[0]));
+        Inkatink i = new Inkatink();
 
-        i.computeLines();
+        i.computeLines(lines.toArray(new String[0]));
 
 //        i.parse("( 3 < 4 ) + 1");
 //        i.parse("3 + 4 * 5");

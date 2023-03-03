@@ -1,0 +1,11 @@
+# array looker
+# initialize and fill
+deque x
+push x 5
+push x 4
+push x 3
+push x 2
+push x 1
+print x
+pop x
+if size x > 0 then goto 9 else end fi

@@ -1,6 +1,9 @@
-var r read
-var x 4
-var y 3
-if r > 0 then var x 5 else var y 8 fi
-print x + y
-goto if r > -5 then 1 else end fi
+setout chegg.txt
+deque x
+add x " var x 7 "
+add x " print x "
+add x " upon x - 1 "
+add x " if x > 0 then goto 2 else end fi "
+write pop x
+if size x > 0 then goto 7 else 9 fi
+eval chegg.txt
