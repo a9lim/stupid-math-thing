@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.*;
 public class Main {
     public static void main(String[] args) throws Exception {
-        Scanner in = new Scanner(new FileReader("sprunk.txt"));
+        Scanner in = new Scanner(new FileReader("grunk.txt"));
 //        new File("out.txt").createNewFile();
 //        PrintWriter out = new PrintWriter(new FileWriter("out.txt"));
 //
