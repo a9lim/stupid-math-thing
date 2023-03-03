@@ -341,14 +341,7 @@ public class Inkatink {
             case "clear" -> sts.clear();
             case "end" -> index = -100;
         }
-<<<<<<< HEAD
-=======
-        for(String key: st[0]){
-            sts.push(flipper.peek());
-            vars.put(key,flipper.pop());
-        }
-        return this.parse(itop(st[1]));
->>>>>>> main
+
     }
     public void sbrteval(String s){
         String[][] grum = new String[2][];
