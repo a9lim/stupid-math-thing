@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # factorial function: loop example
 dsr factorial x
 var sum 1
@@ -11,7 +10,3 @@ var y 5
 print y
 upon y factorial
 print y
-=======
-def hel y : ( y < 0 ) ? ( hel y + 4 ) ; ( y )
-print hel -5
->>>>>>> main

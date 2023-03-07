@@ -18,6 +18,7 @@ public class Inkatink {
     private HashMap<String, Object> parms;
     private HashMap<String, ArrayDeque<String>[]> fun;
     private HashMap<String, String[][]> sbrts;
+    private HashMap<String, Object[]> arrs;
     private PrintWriter out;
     private Scanner in;
 
@@ -33,6 +34,7 @@ public class Inkatink {
         parms = new HashMap<>();
         sts = new ArrayDeque<>();
         sbrts = new HashMap<>();
+        arrs = new HashMap<>();
         // print top of deque, popping
         // print [expression]
         special.add("print");
@@ -68,6 +70,11 @@ public class Inkatink {
         // get size of deque
         // size [name]
         special.add("size");
+
+        // new array
+        special.add("arr");
+        special.add("rra");
+        special.add("get");
 
         // goto line
         // goto [int]
@@ -168,7 +175,7 @@ public class Inkatink {
                     sb.append(" ");
                 }
                 s.pop();
-                o.push(sb.toString());
+                o.add(sb.toString());
             } else {
                 o.add(st);
             }
@@ -212,6 +219,8 @@ public class Inkatink {
                 sts.push(parms.get(st));
             } else if (vars.containsKey(st)) {
                 sts.push(vars.get(st));
+            } else if (arrs.containsKey(st)) {
+                sts.push(arrs.get(st));
             } else if (special.contains(st)) {
                 spevl(st,s);
             } else {
@@ -228,17 +237,32 @@ public class Inkatink {
         switch (s){
             case "def" -> {
                 String name = st.pop();
-                String temp;
                 ArrayDeque<String>[] vars = new ArrayDeque[2];
                 vars[0] = new ArrayDeque<>();
                 vars[1] = new ArrayDeque<>();
-                while(!(temp = st.pop()).equals("as")){
-                    vars[0].push(temp);
+                while(!st.peek().equals("as")){
+                    vars[0].push(st.pop());
                 }
-                while(!(temp = st.pop()).equals("fed")){
-                    vars[1].add(temp);
+                st.pop();
+                while(!st.peek().equals("fed")){
+                    vars[1].add(st.pop());
                 }
+                st.pop();
                 fun.put(name,vars);
+            }
+            case "arr" -> {
+                String name = st.pop();
+                LinkedList<Object> temp = new LinkedList<>();
+                while(!st.peek().equals("rra")){
+                    temp.add(st.pop());
+                }
+                st.pop();
+                arrs.put(name, temp.toArray());
+            }
+            case "get" -> {
+                String name = st.pop();
+                parse(st);
+                sts.push(arrs.get(name)[popInt()]);
             }
             case "var" -> {
                 String name = st.pop();
@@ -302,7 +326,7 @@ public class Inkatink {
                         tempst.add(st.pop());
                     }
                     st.pop();
-                    while (st.pop().equals("fi"));
+                    while (!st.pop().equals("fi"));
                 } else {
                     while (!st.pop().equals("else"));
                     while (!st.peek().equals("fi")) {

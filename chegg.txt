@@ -1,4 +1,2 @@
-var x 7 
-print x 
-upon x - 1 
-if x > 0 then goto 2 else end fi 
+arr test 4 2 5 " gaming " rra
+print get test 2
