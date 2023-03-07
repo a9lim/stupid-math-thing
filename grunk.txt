@@ -1,2 +1,17 @@
+<<<<<<< HEAD
+# factorial function: loop example
+dsr factorial x
+var sum 1
+upon sum * x
+upon x - 1
+goto if x > 1 then 2 else 5 fi
+sum
+rsd
+var y 5
+print y
+upon y factorial
+print y
+=======
 def hel y : ( y < 0 ) ? ( hel y + 4 ) ; ( y )
 print hel -5
+>>>>>>> main

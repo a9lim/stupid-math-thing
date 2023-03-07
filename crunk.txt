@@ -1,0 +1,5 @@
+# conditional example
+goto if read > 0 then 3 else 5 fi
+print 200
+end
+print 500
