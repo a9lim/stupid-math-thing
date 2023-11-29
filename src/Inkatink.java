@@ -9,16 +9,14 @@ public class Inkatink {
     public static final String UWORDS = "~-!";
 
     public static final String WORDS = BWORDS+UWORDS;
-
-//    private String[] lines;
     private int index;
-    private ArrayDeque<Integer> mindx;
-    private ArrayDeque<Object> sts;
-    private HashMap<String, Object> vars;
+    private final ArrayDeque<Integer> mindx;
+    private final ArrayDeque<Object> sts;
+    private final HashMap<String, Object> vars;
     private HashMap<String, Object> parms;
-    private HashMap<String, ArrayDeque<String>[]> fun;
-    private HashMap<String, String[][]> sbrts;
-    private HashMap<String, Object[]> arrs;
+    private final HashMap<String, ArrayDeque<String>[]> fun;
+    private final HashMap<String, String[][]> sbrts;
+    private final HashMap<String, Object[]> arrs;
     private PrintWriter out;
     private Scanner in;
 
@@ -117,21 +115,17 @@ public class Inkatink {
     public void computeLines(String[] lines){
         index = 0;
         ArrayDeque<String> line;
+        LinkedList<String> preeb, sbr;
         while (index < lines.length && index > -1){
             if(!lines[index].startsWith("#")) {
                 line = new ArrayDeque<>(List.of(lines[index].split(" ")));
-                if(line.peek().equals("dsr")) {
+                if("dsr".equals(line.peek())) {
                     line.pop();
                     String name = line.pop();
-                    LinkedList<String> preeb = new LinkedList<>();
-                    while(!line.isEmpty()){
-                        preeb.add(line.pop());
-                    }
-                    LinkedList<String> sbr = new LinkedList<>();
-                    while (!lines[++index].equals("rsd")){
+                    preeb = new LinkedList<>(line);
+                    sbr = new LinkedList<>();
+                    while (!"rsd".equals(lines[++index]))
                         sbr.add(lines[index]);
-                    }
-//                    System.out.println(sbr);
                     sbrts.put(name, new String[][]{preeb.toArray(new String[0]), sbr.toArray(new String[0])});
                 } else {
                     try {
@@ -151,38 +145,31 @@ public class Inkatink {
         String st;
         while (!s.isEmpty()) {
             st = s.pop();
-            if (st.equals(")")) {
-                while (!op.peek().equals("("))
+            if (")".equals(st)) {
+                while (!"(".equals(op.peek()))
                     o.add(op.pop());
                 op.pop();
             } else if (WORDS.contains(st) || fun.containsKey(st) || sbrts.containsKey(st)) {
-                if (op.size() > 0)
-                    if (isLower(st, op.peek())) {
-                        o.add(op.pop());
-                    }
+                if (!op.isEmpty() && isLower(st, op.peek()))
+                    o.add(op.pop());
                 op.push(st);
             } else if (special.contains(st)) {
-                while (!op.isEmpty()) {
-                    o.add(op.pop());
-                }
+                o.addAll(op);
+                op.clear();
                 o.add(st);
-            } else if (st.equals("(")) {
+            } else if ("(".equals(st)) {
                 op.push(st);
-            } else if (st.equals("\"")) {
+            } else if ("\"".equals(st)) {
                 StringBuilder sb = new StringBuilder();
-                while(!s.peek().equals("\"")){
-                    sb.append(s.pop());
-                    sb.append(" ");
-                }
+                while(!"\"".equals(s.peek()))
+                    sb.append(s.pop()).append(" ");
                 s.pop();
                 o.add(sb.toString());
             } else {
                 o.add(st);
             }
         }
-        while (!op.isEmpty()) {
-            o.add(op.pop());
-        }
+        o.addAll(op);
         return o;
     }
 
@@ -240,22 +227,19 @@ public class Inkatink {
                 ArrayDeque<String>[] vars = new ArrayDeque[2];
                 vars[0] = new ArrayDeque<>();
                 vars[1] = new ArrayDeque<>();
-                while(!st.peek().equals("as")){
+                while(!"as".equals(st.peek()))
                     vars[0].push(st.pop());
-                }
                 st.pop();
-                while(!st.peek().equals("fed")){
+                while(!"fed".equals(st.peek()))
                     vars[1].add(st.pop());
-                }
                 st.pop();
                 fun.put(name,vars);
             }
             case "arr" -> {
                 String name = st.pop();
                 LinkedList<Object> temp = new LinkedList<>();
-                while(!st.peek().equals("rra")){
+                while(!"rra".equals(st.peek()))
                     temp.add(st.pop());
-                }
                 st.pop();
                 arrs.put(name, temp.toArray());
             }
@@ -291,9 +275,8 @@ public class Inkatink {
                 try {
                     Scanner in = new Scanner(new FileReader(st.pop()));
                     LinkedList<String> lines = new LinkedList<>();
-                    while (in.hasNextLine()) {
+                    while (in.hasNextLine())
                         lines.add(in.nextLine());
-                    }
                     mindx.push(index);
                     computeLines(lines.toArray(new String[0]));
                     index = mindx.pop();
@@ -315,23 +298,20 @@ public class Inkatink {
             }
             case "if" -> {
                 ArrayDeque<String> tempst = new ArrayDeque<>();
-                while(!st.peek().equals("then")){
+                while(!"then".equals(st.peek()))
                     tempst.add(st.pop());
-                }
                 st.pop();
 
                 parse(tempst);
                 if(popInt() != 0) {
-                    while (!st.peek().equals("else")) {
+                    while (!"else".equals(st.peek()))
                         tempst.add(st.pop());
-                    }
                     st.pop();
-                    while (!st.pop().equals("fi"));
+                    while (!"fi".equals(st.pop()));
                 } else {
-                    while (!st.pop().equals("else"));
-                    while (!st.peek().equals("fi")) {
+                    while (!"else".equals(st.pop()));
+                    while (!"fi".equals(st.peek()))
                         tempst.add(st.pop());
-                    }
                     st.pop();
                 }
                 parse(tempst);
@@ -373,10 +353,8 @@ public class Inkatink {
         grum[1] = sbrts.get(s)[1];
 
         parms = new HashMap<>();
-        for(int i = grum[0].length-1; i > -1; i--){
+        for(int i = grum[0].length-1; i > -1; i--)
             parms.put(grum[0][i],sts.pop());
-        }
-
         mindx.push(index);
         computeLines(grum[1]);
         index = mindx.pop();
@@ -387,9 +365,8 @@ public class Inkatink {
         grum[1] = new ArrayDeque<>(fun.get(s)[1]);
 
         parms = new HashMap<>();
-        while(!grum[0].isEmpty()){
+        while(!grum[0].isEmpty())
             parms.put(grum[0].pop(),sts.pop());
-        }
         parse(grum[1]);
     }
     public void bineval(int a, int b, String s) {
@@ -430,9 +407,8 @@ public class Inkatink {
         if(u < 2)
             return 0;
         int out = 2;
-        for(int i = 3; i <= u; i++){
+        for(int i = 3; i <= u; i++)
             out*=i;
-        }
         return out;
     }
 }

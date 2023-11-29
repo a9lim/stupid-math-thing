@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.*;
 public class Main {
     public static void main(String[] args) throws Exception {
-        Scanner in = new Scanner(new FileReader("chegg.txt"));
+        Scanner in = new Scanner(new FileReader("sprunk.txt"));
 //        new File("out.txt").createNewFile();
 //        PrintWriter out = new PrintWriter(new FileWriter("out.txt"));
 //
@@ -12,11 +12,9 @@ public class Main {
 
 //        int ii = 0;
         LinkedList<String> lines = new LinkedList<>();
-        while (in.hasNextLine()){
+        while (in.hasNextLine())
             lines.add(in.nextLine());
-        }
         Inkatink i = new Inkatink();
-
         i.computeLines(lines.toArray(new String[0]));
 
 //        i.parse("( 3 < 4 ) + 1");
