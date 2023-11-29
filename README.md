@@ -1,2 +1,2 @@
 # stupid-math-thing
-grunk
+trash stack-based language i made for a class
